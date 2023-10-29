@@ -15,20 +15,23 @@ client.login(process.env.discord_bot_token)
 
 client.commands = new Collection()
 
-const commandsPath = path.join(__dirname, 'commands')
-const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'))
+const foldersPath = path.join(__dirname, 'commands')
+const folders = fs.readdirSync(commandsPath)
 
-for ( const file of commandFiles ) {
-    const filepath = path.join(commandsPath, file)
-    const command = require(filepath)
+for ( const folder of folders ) {
+    const filespath = path.join(foldersPath, folder)
+    const files = fs.readdirSync(filespath).filter(file => file.endsWith('.js'))
+    for ( const file in files ){
+        const filepath = path.join(filespath,file)
+        const command = require(filepath)
 
-    if ( 'data' in command && 'execute' in command ) {
-        client.commands.set(command.data.name, command)
+        if ( 'data' in command && 'execute' in command ) {
+            client.commands.set(command.data.name, command)
+        }
+        else {
+            console.log(`The command at ${filespath} does not contain data or execute property`)
+        }
     }
-    else {
-        console.log(`The command at ${filepath} does not contain data or execute property`)
-    }
-
 }
 
 client.on( Events.InteractionCreate, async interaction => {
@@ -46,6 +49,7 @@ client.on( Events.InteractionCreate, async interaction => {
     }
     catch (error) {
         console.error(error)
+
         if (interaction.replied || interaction.deferred) {
             await interaction.followUp({ content: "There was an error while executing this command", ephemeral: true })
         } else {
