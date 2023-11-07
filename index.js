@@ -16,7 +16,7 @@ client.login(process.env.discord_bot_token)
 client.commands = new Collection()
 
 const foldersPath = path.join(__dirname, 'commands')
-const folders = fs.readdirSync(commandsPath)
+const folders = fs.readdirSync(foldersPaths)
 
 for ( const folder of folders ) {
     const filespath = path.join(foldersPath, folder)
