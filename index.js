@@ -16,12 +16,12 @@ client.login(process.env.discord_bot_token)
 client.commands = new Collection()
 
 const foldersPath = path.join(__dirname, 'commands')
-const folders = fs.readdirSync(foldersPaths)
+const folders = fs.readdirSync(foldersPath)
 
 for ( const folder of folders ) {
     const filespath = path.join(foldersPath, folder)
     const files = fs.readdirSync(filespath).filter(file => file.endsWith('.js'))
-    for ( const file in files ){
+    for ( const file of files ){
         const filepath = path.join(filespath,file)
         const command = require(filepath)
 
@@ -37,7 +37,7 @@ for ( const folder of folders ) {
 client.on( Events.InteractionCreate, async interaction => {
     if (!interaction.isChatInputCommand()) return
     
-    const command = interaction.client.command.get(interaction.commandName)
+    const command = interaction.client.commands.get(interaction.commandName);
 
     if(!command) {
         console.error(`No command of name ${interaction.commandName}`)
@@ -45,15 +45,15 @@ client.on( Events.InteractionCreate, async interaction => {
     }
 
     try{
-        await command.execute(interaction)
+        await command.execute(interaction);
     }
     catch (error) {
         console.error(error)
 
         if (interaction.replied || interaction.deferred) {
-            await interaction.followUp({ content: "There was an error while executing this command", ephemeral: true })
+            await interaction.followUp({ content: "There was an error while executing this command", ephemeral: true });
         } else {
-            await interaction.reply({ content: "There was an error while executing this command", ephemeral: true })
+            await interaction.reply({ content: "There was an error while executing this command", ephemeral: true });
         }
     }
-})
+});
